@@ -1,4 +1,6 @@
 
+#include <unordered_map>
+
 #include <ros/ros.h>
 #include <topic_tools/shape_shifter.h>
 #include "diagnostic_updater/update_functions.h"
@@ -9,7 +11,12 @@ namespace diagnostic_generic_diagnostics
 struct TopicStatusParam
 {
   TopicStatusParam()
-    : topic(""), hardware_id(""), custom_msg(""), headerless(false), fparam(&this->freq.min, &this->freq.max), tparam()
+    : topic("")
+    , hardware_id("anonymous")
+    , custom_msg("")
+    , headerless(false)
+    , fparam(&this->freq.min, &this->freq.max)
+    , tparam()
   {
     freq.max = 0.0;
     freq.min = 0.0;
@@ -83,33 +90,32 @@ using TopicStatusParamPtr = std::shared_ptr<TopicStatusParam>;
 class TopicMonitor
 {
 private:
-  ros::NodeHandle                  nh_, pnh_;
-  ros::Timer                       timer_;
-  std::vector<ros::Subscriber>     subs_;
-  std::vector<UpdaterPtr>          updaters_;
-  std::vector<TopicStatusParamPtr> params_;
+  ros::NodeHandle                             nh_, pnh_;
+  ros::Timer                                  timer_;
+  std::vector<ros::Subscriber>                subs_;
+  std::unordered_map<std::string, UpdaterPtr> updaters_;
+  std::vector<std::string>                    hardware_ids_;
+  std::vector<TopicStatusParamPtr>            params_;
 
   void headerlessTopicCallback(const ros::MessageEvent<topic_tools::ShapeShifter> &           msg,
                                std::shared_ptr<diagnostic_updater::HeaderlessTopicDiagnostic> task)
   {
-    ROS_DEBUG("cb invoked");
     task->tick();
   }
 
   void topicCallback(const ros::MessageEvent<topic_tools::ShapeShifter> & msg,
                      std::shared_ptr<diagnostic_updater::TopicDiagnostic> task)
   {
-    ROS_DEBUG("cb invoked");
     task->tick(ros::Time::now());
   }
 
   void timerCallback(const ros::TimerEvent &e)
   {
-    ROS_DEBUG_THROTTLE(1, "cb invoked");
-    for(const auto &updater : updaters_)
-    {
-      updater->update();
-    }
+    static int cb_count = 0;
+    // ROS_DEBUG_THROTTLE(0.1, "cb invoked: %d", cb_count);
+    ROS_DEBUG("cb invoked: %d, %s", cb_count, hardware_ids_[cb_count].c_str());
+    updaters_[hardware_ids_[cb_count]]->update();
+    cb_count = (cb_count + 1) % updaters_.size();
   }
 
 public:
@@ -129,9 +135,18 @@ public:
       {
         params_.push_back(param);
 
-        auto updater = std::make_shared<diagnostic_updater::Updater>();
-        updater->setHardwareID(param->hardware_id);
-        updaters_.push_back(updater);
+        if(updaters_.find(param->hardware_id) == updaters_.end())
+        {
+          auto u = std::make_shared<diagnostic_updater::Updater>();
+          u->setHardwareID(param->hardware_id);
+          updaters_[param->hardware_id] = u;
+          hardware_ids_.push_back(param->hardware_id);
+        }
+
+        ROS_ASSERT(updaters_.size() > 0);
+        auto itr = updaters_.find(param->hardware_id);
+        ROS_ASSERT(itr != updaters_.end());
+        auto updater = itr->second;
 
         ros::Subscriber sub;
         if(param->headerless)
@@ -157,7 +172,10 @@ public:
         subs_.push_back(sub);
       }
     }
-    timer_ = nh_.createTimer(ros::Duration(0.5), &diagnostic_generic_diagnostics::TopicMonitor::timerCallback, this);
+    auto num_updaters = updaters_.size();
+    ROS_ASSERT(num_updaters > 0);
+    timer_ = nh_.createTimer(ros::Duration(0.1 / static_cast<double>(num_updaters)),
+                             &diagnostic_generic_diagnostics::TopicMonitor::timerCallback, this);
   }
 };
 
