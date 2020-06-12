@@ -155,7 +155,7 @@ public:
               param->topic, *updater, param->fparam, param->custom_fields);
 
           sub = nh_.subscribe<topic_tools::ShapeShifter>(
-              param->topic, 1,
+              param->topic, 50,
               boost::bind(&diagnostic_generic_diagnostics::TopicMonitor::headerlessTopicCallback, this, _1, watcher));
         }
         else
@@ -164,7 +164,7 @@ public:
                                                                                param->tparam, param->custom_fields);
 
           sub = nh_.subscribe<topic_tools::ShapeShifter>(
-              param->topic, 1,
+              param->topic, 50,
               boost::bind(&diagnostic_generic_diagnostics::TopicMonitor::topicCallback, this, _1, watcher));
         }
 
