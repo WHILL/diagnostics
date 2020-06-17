@@ -113,7 +113,7 @@ private:
   {
     static int cb_count = 0;
     // ROS_DEBUG_THROTTLE(0.1, "cb invoked: %d", cb_count);
-    ROS_DEBUG("cb invoked: %d, %s", cb_count, hardware_ids_[cb_count].c_str());
+    // ROS_DEBUG("cb invoked: %d, %s", cb_count, hardware_ids_[cb_count].c_str());
     updaters_[hardware_ids_[cb_count]]->update();
     cb_count = (cb_count + 1) % updaters_.size();
   }
@@ -155,7 +155,7 @@ public:
               param->topic, *updater, param->fparam, param->custom_fields);
 
           sub = nh_.subscribe<topic_tools::ShapeShifter>(
-              param->topic, 1,
+              param->topic, 50,
               boost::bind(&diagnostic_generic_diagnostics::TopicMonitor::headerlessTopicCallback, this, _1, watcher));
         }
         else
@@ -164,7 +164,7 @@ public:
                                                                                param->tparam, param->custom_fields);
 
           sub = nh_.subscribe<topic_tools::ShapeShifter>(
-              param->topic, 1,
+              param->topic, 50,
               boost::bind(&diagnostic_generic_diagnostics::TopicMonitor::topicCallback, this, _1, watcher));
         }
 
