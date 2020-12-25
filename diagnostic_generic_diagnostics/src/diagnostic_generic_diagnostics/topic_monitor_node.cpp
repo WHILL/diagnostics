@@ -9,8 +9,8 @@ int main(int argc, char **argv)
 
   diagnostic_generic_diagnostics::TopicMonitor topic_monitor(nh, pnh);
 
-  ROS_INFO("spinning...");
+  ROS_DEBUG("spinning...");
   ros::spin();
-  ROS_INFO("exit...");
+  ROS_DEBUG("exit...");
   return 0;
 }

@@ -137,7 +137,7 @@ namespace self_test
         {
           const std::string unspecified_id("unspecified");
 
-          ROS_INFO("Entering self-test.");
+          ROS_DEBUG("Entering self-test.");
 
           std::vector<diagnostic_msgs::DiagnosticStatus> status_vec;
 
@@ -157,7 +157,7 @@ namespace self_test
             status.message = "No message was set";
 
             try {
-              ROS_INFO("Starting test: %s", iter->getName().c_str());
+              ROS_DEBUG("Starting test: %s", iter->getName().c_str());
               iter->run(status);
 
             } catch (std::exception& e)
@@ -196,7 +196,7 @@ namespace self_test
 
           retval = true;
           
-          ROS_INFO("Self-test complete.");
+          ROS_DEBUG("Self-test complete.");
         }
 
         return retval;

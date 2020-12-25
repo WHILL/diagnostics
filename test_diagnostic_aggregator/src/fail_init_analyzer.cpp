@@ -63,7 +63,7 @@ bool FailInitAnalyzer::init(const string base_name, const ros::NodeHandle &n)
   else
     path_ = base_name + "/" + nice_name_;
 
-  ROS_INFO("FailInitAnalyzer is returning false. Fails to initialize on purpose");
+  ROS_DEBUG("FailInitAnalyzer is returning false. Fails to initialize on purpose");
   return false;
 }
 

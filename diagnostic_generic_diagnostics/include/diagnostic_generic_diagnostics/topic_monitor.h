@@ -121,7 +121,7 @@ private:
 public:
   TopicMonitor(ros::NodeHandle nh, ros::NodeHandle pnh) : nh_(nh), pnh_(pnh)
   {
-    ROS_INFO("Starting TopicMonitor...");
+    ROS_DEBUG("Starting TopicMonitor...");
 
     XmlRpc::XmlRpcValue topics;
     pnh_.getParam("topics", topics);
@@ -168,7 +168,7 @@ public:
               boost::bind(&diagnostic_generic_diagnostics::TopicMonitor::topicCallback, this, _1, watcher));
         }
 
-        ROS_INFO("Setup sub for %s", param->topic.c_str());
+        ROS_DEBUG("Setup sub for %s", param->topic.c_str());
         subs_.push_back(sub);
       }
     }

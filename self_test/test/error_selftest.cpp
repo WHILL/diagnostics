@@ -64,7 +64,7 @@ public:
 
   void pretest(diagnostic_updater::DiagnosticStatusWrapper& status)
   {
-    ROS_INFO("Doing preparation stuff before we run our test.\n");
+    ROS_DEBUG("Doing preparation stuff before we run our test.\n");
     status.summary(diagnostic_msgs::DiagnosticStatus::OK, "Pretest completed successfully.");
     
     some_val = 1.0;
@@ -113,7 +113,7 @@ public:
 
   void posttest(diagnostic_updater::DiagnosticStatusWrapper& status)
   {
-    ROS_INFO("Doing cleanup stuff after we run our test.\n");
+    ROS_DEBUG("Doing cleanup stuff after we run our test.\n");
     status.summary(diagnostic_msgs::DiagnosticStatus::OK, "Posttest completed successfully.");
   }
 
