@@ -3,8 +3,8 @@
 #include <std_msgs/Bool.h>
 #include <topic_tools/shape_shifter.h>
 
-#include "diagnostic_updater/publisher.h"
-#include "diagnostic_updater/update_functions.h"
+#include "diagnostic_updater_ext/publisher.h"
+#include "diagnostic_updater_ext/update_functions.h"
 
 namespace diagnostic_generic_diagnostics
 {
@@ -18,9 +18,9 @@ struct BoolStatusParam
   std::string topic;
   std::string hardware_id;
   std::string custom_msg;  // Provision. Currentlly not used.
-  std::vector<diagnostic_updater::CustomField> custom_fields;
+  std::vector<diagnostic_updater_ext::CustomField> custom_fields;
   bool timer_update;
-  diagnostic_updater::BoolStatusParam bparam;
+  diagnostic_updater_ext::BoolStatusParam bparam;
 };
 
 bool parseTopicStatus(XmlRpc::XmlRpcValue & values, BoolStatusParam & param)
@@ -41,7 +41,7 @@ bool parseTopicStatus(XmlRpc::XmlRpcValue & values, BoolStatusParam & param)
       auto fields = values["custom_fields"];
       ROS_DEBUG("parsing field, size of %u...", fields.size());
       for (int i = 0; i < fields.size(); ++i) {
-        diagnostic_updater::CustomField field;
+        diagnostic_updater_ext::CustomField field;
         field.key = static_cast<std::string>(fields[i]["key"]);
         field.value = static_cast<std::string>(fields[i]["value"]);
         field.level = static_cast<int>(fields[i]["level"]);
@@ -61,7 +61,7 @@ bool parseTopicStatus(XmlRpc::XmlRpcValue & values, BoolStatusParam & param)
   return false;
 }
 
-using UpdaterPtr = std::shared_ptr<diagnostic_updater::Updater>;
+using UpdaterPtr = std::shared_ptr<diagnostic_updater_ext::Updater>;
 using BoolStatusParamPtr = std::shared_ptr<BoolStatusParam>;
 class BoolMonitor
 {
@@ -73,7 +73,7 @@ private:
 
   void callback(
     const std_msgs::BoolConstPtr & msg, UpdaterPtr updater,
-    std::shared_ptr<diagnostic_updater::BoolDiagnostic> task)
+    std::shared_ptr<diagnostic_updater_ext::BoolDiagnostic> task)
   {
     task->set(msg->data);
     updater->update();
@@ -94,10 +94,10 @@ public:
       ROS_DEBUG("Reading %dth topic...", i);
       auto param = std::make_shared<BoolStatusParam>();
       if (parseTopicStatus(topics[i], *param)) {
-        auto updater = std::make_shared<diagnostic_updater::Updater>();
+        auto updater = std::make_shared<diagnostic_updater_ext::Updater>();
         updater->setHardwareID(param->hardware_id);
 
-        auto watcher = std::make_shared<diagnostic_updater::BoolDiagnostic>(
+        auto watcher = std::make_shared<diagnostic_updater_ext::BoolDiagnostic>(
           param->topic, *updater, param->bparam, param->custom_fields);
         auto sub = nh_.subscribe<std_msgs::Bool>(
           param->topic, 1,
