@@ -1,6 +1,6 @@
 #include "diagnostic_generic_diagnostics/bool_monitor.h"
 
-int main(int argc, char **argv)
+int main(int argc, char ** argv)
 {
   ros::init(argc, argv, "bool_monitor");
 

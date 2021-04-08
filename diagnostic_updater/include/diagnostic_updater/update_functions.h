@@ -49,21 +49,21 @@ struct CustomField
 {
   std::string key;
   std::string value;
-  int         level;  // OK:1, WARN:2, ERROR:4 and sum of the error level you want to show
+  int level;  // OK:1, WARN:2, ERROR:4 and sum of the error level you want to show
 };
 
-static void addCustomFields(diagnostic_updater::DiagnosticStatusWrapper &stat, const int &status,
-                            const std::vector<diagnostic_updater::CustomField> &fields)
+static void addCustomFields(
+  diagnostic_updater::DiagnosticStatusWrapper & stat, const int & status,
+  const std::vector<diagnostic_updater::CustomField> & fields)
 {
-  for(const auto &field : fields)
-  {
-    const bool disp_ok   = (field.level) % 2 == 1;
+  for (const auto & field : fields) {
+    const bool disp_ok = (field.level) % 2 == 1;
     const bool disp_warn = (field.level / 2) % 2 == 1;
-    const bool disp_err  = (field.level / 4) % 2 == 1;
-    if((status == diagnostic_msgs::DiagnosticStatus::OK && disp_ok) ||
-       (status == diagnostic_msgs::DiagnosticStatus::WARN && disp_warn) ||
-       (status == diagnostic_msgs::DiagnosticStatus::ERROR && disp_err))
-    {
+    const bool disp_err = (field.level / 4) % 2 == 1;
+    if (
+      (status == diagnostic_msgs::DiagnosticStatus::OK && disp_ok) ||
+      (status == diagnostic_msgs::DiagnosticStatus::WARN && disp_warn) ||
+      (status == diagnostic_msgs::DiagnosticStatus::ERROR && disp_err)) {
       stat.add(field.key, field.value);
     }
   }
@@ -80,8 +80,9 @@ struct FrequencyStatusParam
    * \brief Creates a filled-out FrequencyStatusParam.
    */
 
-  FrequencyStatusParam(double *min_freq, double *max_freq, double tolerance = 0.1, int window_size = 5)
-    : min_freq_(min_freq), max_freq_(max_freq), tolerance_(tolerance), window_size_(window_size)
+  FrequencyStatusParam(
+    double * min_freq, double * max_freq, double tolerance = 0.1, int window_size = 5)
+  : min_freq_(min_freq), max_freq_(max_freq), tolerance_(tolerance), window_size_(window_size)
   {
   }
 
@@ -91,7 +92,7 @@ struct FrequencyStatusParam
    * A pointer is used so that the value can be updated.
    */
 
-  double *min_freq_;
+  double * min_freq_;
 
   /**
    * \brief Maximum acceptable frequency.
@@ -99,7 +100,7 @@ struct FrequencyStatusParam
    * A pointer is used so that the value can be updated.
    */
 
-  double *max_freq_;
+  double * max_freq_;
 
   /**
    * \brief Tolerance with which bounds must be satisfied.
@@ -131,36 +132,38 @@ struct FrequencyStatusParam
 class FrequencyStatus : public DiagnosticTask
 {
 private:
-  const FrequencyStatusParam                   params_;
+  const FrequencyStatusParam params_;
   std::vector<diagnostic_updater::CustomField> custom_fields_;
-  int                                          latest_status_;
-  int                                          count_;
-  std::vector<ros::Time>                       times_;
-  std::vector<int>                             seq_nums_;
-  int                                          hist_indx_;
-  boost::mutex                                 lock_;
+  int latest_status_;
+  int count_;
+  std::vector<ros::Time> times_;
+  std::vector<int> seq_nums_;
+  int hist_indx_;
+  boost::mutex lock_;
 
 public:
   /**
    * \brief Constructs a FrequencyStatus class with the given parameters.
    */
 
-  FrequencyStatus(const FrequencyStatusParam &params, std::string name)
-    : DiagnosticTask(name)
-    , params_(params)
-    , times_(params_.window_size_)
-    , seq_nums_(params_.window_size_)
-    , latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
+  FrequencyStatus(const FrequencyStatusParam & params, std::string name)
+  : DiagnosticTask(name),
+    params_(params),
+    times_(params_.window_size_),
+    seq_nums_(params_.window_size_),
+    latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
   {
     clear();
   }
 
-  FrequencyStatus(const FrequencyStatusParam &params, const std::vector<diagnostic_updater::CustomField> &custom_fields)
-    : DiagnosticTask("Frequency Status")
-    , params_(params)
-    , times_(params_.window_size_)
-    , seq_nums_(params_.window_size_)
-    , latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
+  FrequencyStatus(
+    const FrequencyStatusParam & params,
+    const std::vector<diagnostic_updater::CustomField> & custom_fields)
+  : DiagnosticTask("Frequency Status"),
+    params_(params),
+    times_(params_.window_size_),
+    seq_nums_(params_.window_size_),
+    latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
   {
     clear();
     custom_fields_ = custom_fields;
@@ -171,12 +174,12 @@ public:
    *        Uses a default diagnostic task name of "Frequency Status".
    */
 
-  FrequencyStatus(const FrequencyStatusParam &params)
-    : DiagnosticTask("Frequency Status")
-    , params_(params)
-    , times_(params_.window_size_)
-    , seq_nums_(params_.window_size_)
-    , latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
+  FrequencyStatus(const FrequencyStatusParam & params)
+  : DiagnosticTask("Frequency Status"),
+    params_(params),
+    times_(params_.window_size_),
+    seq_nums_(params_.window_size_),
+    latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
   {
     clear();
   }
@@ -194,12 +197,11 @@ public:
   void clear()
   {
     boost::mutex::scoped_lock lock(lock_);
-    ros::Time                 curtime = ros::Time::now();
-    count_                            = 0;
+    ros::Time curtime = ros::Time::now();
+    count_ = 0;
 
-    for(int i = 0; i < params_.window_size_; i++)
-    {
-      times_[i]    = curtime;
+    for (int i = 0; i < params_.window_size_; i++) {
+      times_[i] = curtime;
       seq_nums_[i] = count_;
     }
 
@@ -217,45 +219,34 @@ public:
     count_++;
   }
 
-  virtual void run(diagnostic_updater::DiagnosticStatusWrapper &stat)
+  virtual void run(diagnostic_updater::DiagnosticStatusWrapper & stat)
   {
     boost::mutex::scoped_lock lock(lock_);
-    ros::Time                 curtime = ros::Time::now();
-    int                       curseq  = count_;
-    int                       events  = curseq - seq_nums_[hist_indx_];
-    double                    window  = (curtime - times_[hist_indx_]).toSec();
-    double                    freq    = events / window;
-    seq_nums_[hist_indx_]             = curseq;
-    times_[hist_indx_]                = curtime;
-    hist_indx_                        = (hist_indx_ + 1) % params_.window_size_;
+    ros::Time curtime = ros::Time::now();
+    int curseq = count_;
+    int events = curseq - seq_nums_[hist_indx_];
+    double window = (curtime - times_[hist_indx_]).toSec();
+    double freq = events / window;
+    seq_nums_[hist_indx_] = curseq;
+    times_[hist_indx_] = curtime;
+    hist_indx_ = (hist_indx_ + 1) % params_.window_size_;
 
-    if(events == 0)
-    {
+    if (events == 0) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::ERROR;
       stat.summary(latest_status_, "No events recorded.");
-    }
-    else if(freq < *params_.min_freq_ * (1 - params_.tolerance_))
-    {
+    } else if (freq < *params_.min_freq_ * (1 - params_.tolerance_)) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::ERROR;
       stat.summary(latest_status_, "Frequency too low to continue operation.");
-    }
-    else if(freq > *params_.max_freq_ * (1 + params_.tolerance_))
-    {
+    } else if (freq > *params_.max_freq_ * (1 + params_.tolerance_)) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::ERROR;
       stat.summary(latest_status_, "Frequency too high to continue operation.");
-    }
-    else if(freq < *params_.min_freq_)
-    {
+    } else if (freq < *params_.min_freq_) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::WARN;
       stat.summary(latest_status_, "Frequency is lower than desired.");
-    }
-    else if(freq > *params_.max_freq_)
-    {
+    } else if (freq > *params_.max_freq_) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::WARN;
       stat.summary(latest_status_, "Frequency is higher than desired.");
-    }
-    else
-    {
+    } else {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::OK;
       stat.summary(latest_status_, "Desired frequency met");
     }
@@ -266,21 +257,22 @@ public:
     stat.addf("Events since startup", "%d", count_);
     stat.addf("Duration of window (s)", "%f", window);
     stat.addf("Actual frequency (Hz)", "%f", freq);
-    if(*params_.min_freq_ == *params_.max_freq_)
+    if (*params_.min_freq_ == *params_.max_freq_)
       stat.addf("Target frequency (Hz)", "%f", *params_.min_freq_);
-    if(*params_.min_freq_ > 0)
-    {
-      stat.addf("Minimum acceptable frequency (Hz)", "%f", *params_.min_freq_ * (1 - params_.tolerance_));
+    if (*params_.min_freq_ > 0) {
+      stat.addf(
+        "Minimum acceptable frequency (Hz)", "%f", *params_.min_freq_ * (1 - params_.tolerance_));
       stat.addf("Minimum desired frequency (Hz)", "%f", *params_.min_freq_);
     }
 
 #ifdef _WIN32
-    if(isfinite(*params_.max_freq_))
+    if (isfinite(*params_.max_freq_))
 #else
-    if(finite(*params_.max_freq_))
+    if (finite(*params_.max_freq_))
 #endif
     {
-      stat.addf("Maximum acceptable frequency (Hz)", "%f", *params_.max_freq_ * (1 + params_.tolerance_));
+      stat.addf(
+        "Maximum acceptable frequency (Hz)", "%f", *params_.max_freq_ * (1 + params_.tolerance_));
       stat.addf("Maximum desired frequency (Hz)", "%f", *params_.max_freq_);
     }
   }
@@ -298,7 +290,7 @@ struct TimeStampStatusParam
    */
 
   TimeStampStatusParam(const double min_acceptable = -1, const double max_acceptable = 5)
-    : max_acceptable_(max_acceptable), min_acceptable_(min_acceptable)
+  : max_acceptable_(max_acceptable), min_acceptable_(min_acceptable)
   {
   }
 
@@ -338,13 +330,13 @@ class TimeStampStatus : public DiagnosticTask
 private:
   void init()
   {
-    early_count_   = 0;
-    late_count_    = 0;
-    zero_count_    = 0;
-    zero_seen_     = false;
-    max_delta_     = 0;
-    min_delta_     = 0;
-    deltas_valid_  = false;
+    early_count_ = 0;
+    late_count_ = 0;
+    zero_count_ = 0;
+    zero_seen_ = false;
+    max_delta_ = 0;
+    min_delta_ = 0;
+    deltas_valid_ = false;
     latest_status_ = diagnostic_msgs::DiagnosticStatus::ERROR;
   }
 
@@ -353,7 +345,8 @@ public:
    * \brief Constructs the TimeStampStatus with the given parameters.
    */
 
-  TimeStampStatus(const TimeStampStatusParam &params, std::string name) : DiagnosticTask(name), params_(params)
+  TimeStampStatus(const TimeStampStatusParam & params, std::string name)
+  : DiagnosticTask(name), params_(params)
   {
     init();
   }
@@ -363,7 +356,8 @@ public:
    *        Uses a default diagnostic task name of "Timestamp Status".
    */
 
-  TimeStampStatus(const TimeStampStatusParam &params) : DiagnosticTask("Timestamp Status"), params_(params)
+  TimeStampStatus(const TimeStampStatusParam & params)
+  : DiagnosticTask("Timestamp Status"), params_(params)
   {
     init();
   }
@@ -373,10 +367,7 @@ public:
    *        Uses a default diagnostic task name of "Timestamp Status".
    */
 
-  TimeStampStatus() : DiagnosticTask("Timestamp Status")
-  {
-    init();
-  }
+  TimeStampStatus() : DiagnosticTask("Timestamp Status") { init(); }
 
   int get_status()
   {
@@ -394,19 +385,14 @@ public:
   {
     boost::mutex::scoped_lock lock(lock_);
 
-    if(stamp == 0)
-    {
+    if (stamp == 0) {
       zero_seen_ = true;
-    }
-    else
-    {
+    } else {
       double delta = ros::Time::now().toSec() - stamp;
 
-      if(!deltas_valid_ || delta > max_delta_)
-        max_delta_ = delta;
+      if (!deltas_valid_ || delta > max_delta_) max_delta_ = delta;
 
-      if(!deltas_valid_ || delta < min_delta_)
-        min_delta_ = delta;
+      if (!deltas_valid_ || delta < min_delta_) min_delta_ = delta;
 
       deltas_valid_ = true;
     }
@@ -419,40 +405,31 @@ public:
    * intervals.
    */
 
-  void tick(const ros::Time t)
-  {
-    tick(t.toSec());
-  }
+  void tick(const ros::Time t) { tick(t.toSec()); }
 
-  virtual void run(diagnostic_updater::DiagnosticStatusWrapper &stat)
+  virtual void run(diagnostic_updater::DiagnosticStatusWrapper & stat)
   {
     boost::mutex::scoped_lock lock(lock_);
 
     latest_status_ = diagnostic_msgs::DiagnosticStatus::OK;
     stat.summary(latest_status_, "Timestamps are reasonable.");
-    if(!deltas_valid_)
-    {
+    if (!deltas_valid_) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::WARN;
       stat.summary(latest_status_, "No data since last update.");
-    }
-    else
-    {
-      if(min_delta_ < params_.min_acceptable_)
-      {
+    } else {
+      if (min_delta_ < params_.min_acceptable_) {
         latest_status_ = diagnostic_msgs::DiagnosticStatus::ERROR;
         stat.summary(latest_status_, "Timestamps too far in future seen.");
         early_count_++;
       }
 
-      if(max_delta_ > params_.max_acceptable_)
-      {
+      if (max_delta_ > params_.max_acceptable_) {
         latest_status_ = diagnostic_msgs::DiagnosticStatus::ERROR;
         stat.summary(latest_status_, "Timestamps too far in past seen.");
         late_count_++;
       }
 
-      if(zero_seen_)
-      {
+      if (zero_seen_) {
         latest_status_ = diagnostic_msgs::DiagnosticStatus::ERROR;
         stat.summary(latest_status_, "Zero timestamp seen.");
         zero_count_++;
@@ -468,22 +445,22 @@ public:
     stat.add("Zero seen diagnostic update count:", zero_count_);
 
     deltas_valid_ = false;
-    min_delta_    = 0;
-    max_delta_    = 0;
-    zero_seen_    = false;
+    min_delta_ = 0;
+    max_delta_ = 0;
+    zero_seen_ = false;
   }
 
 private:
   TimeStampStatusParam params_;
-  int                  early_count_;
-  int                  late_count_;
-  int                  zero_count_;
-  bool                 zero_seen_;
-  double               max_delta_;
-  double               min_delta_;
-  bool                 deltas_valid_;
-  boost::mutex         lock_;
-  int                  latest_status_;
+  int early_count_;
+  int late_count_;
+  int zero_count_;
+  bool zero_seen_;
+  double max_delta_;
+  double min_delta_;
+  bool deltas_valid_;
+  boost::mutex lock_;
+  int latest_status_;
 };
 
 /**
@@ -499,38 +476,31 @@ public:
    * \brief Constructs a HeartBeat
    */
 
-  Heartbeat() : DiagnosticTask("Heartbeat")
-  {
-  }
+  Heartbeat() : DiagnosticTask("Heartbeat") {}
 
-  virtual void run(diagnostic_updater::DiagnosticStatusWrapper &stat)
-  {
-    stat.summary(0, "Alive");
-  }
+  virtual void run(diagnostic_updater::DiagnosticStatusWrapper & stat) { stat.summary(0, "Alive"); }
 };
 
 struct BoundStatusParam
 {
-  BoundStatusParam(int error_upper_bound, int warn_upper_bound, int warn_lower_bound, int error_lower_bound)
-    : error_upper_bound_(error_upper_bound)
-    , warn_upper_bound_(warn_upper_bound)
-    , warn_lower_bound_(warn_lower_bound)
-    , error_lower_bound_(error_lower_bound)
+  BoundStatusParam(
+    int error_upper_bound, int warn_upper_bound, int warn_lower_bound, int error_lower_bound)
+  : error_upper_bound_(error_upper_bound),
+    warn_upper_bound_(warn_upper_bound),
+    warn_lower_bound_(warn_lower_bound),
+    error_lower_bound_(error_lower_bound)
   {
-    if(error_upper_bound_ < error_lower_bound_)
-    {
+    if (error_upper_bound_ < error_lower_bound_) {
       ROS_WARN("Error upper bound must be grater than error lower bound. Swap them.");
-      int tmp            = error_upper_bound;
+      int tmp = error_upper_bound;
       error_upper_bound_ = error_lower_bound_;
       error_lower_bound_ = tmp;
     }
-    if(warn_upper_bound_ > error_upper_bound_)
-    {
+    if (warn_upper_bound_ > error_upper_bound_) {
       ROS_WARN("Warn upper bound must be less than error upper bound");
       warn_upper_bound_ = error_upper_bound_;
     }
-    if(warn_lower_bound_ < error_lower_bound_)
-    {
+    if (warn_lower_bound_ < error_lower_bound_) {
       ROS_WARN("Warn lower bound must be grater than error lower bound");
       warn_lower_bound_ = error_lower_bound_;
     }
@@ -546,13 +516,16 @@ class BoundStatus : public DiagnosticTask
 {
 private:
   const BoundStatusParam params_;
-  boost::mutex           lock_;
-  int                    latest_status_;
-  int                    current_value_;
+  boost::mutex lock_;
+  int latest_status_;
+  int current_value_;
 
 public:
-  BoundStatus(const BoundStatusParam &params, std::string name = "Bound Status")
-    : DiagnosticTask(name), params_(params), current_value_(0), latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
+  BoundStatus(const BoundStatusParam & params, std::string name = "Bound Status")
+  : DiagnosticTask(name),
+    params_(params),
+    current_value_(0),
+    latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
   {
     clear();
   }
@@ -575,32 +548,23 @@ public:
     return latest_status_;
   }
 
-  virtual void run(diagnostic_updater::DiagnosticStatusWrapper &stat)
+  virtual void run(diagnostic_updater::DiagnosticStatusWrapper & stat)
   {
     boost::mutex::scoped_lock lock(lock_);
 
-    if(current_value_ > params_.error_upper_bound_)
-    {
+    if (current_value_ > params_.error_upper_bound_) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::ERROR;
       stat.summary(latest_status_, "Current value exceeds upper bound.");
-    }
-    else if(current_value_ < params_.error_lower_bound_)
-    {
+    } else if (current_value_ < params_.error_lower_bound_) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::ERROR;
       stat.summary(latest_status_, "Current value falls short of lower bound.");
-    }
-    else if(current_value_ > params_.warn_upper_bound_)
-    {
+    } else if (current_value_ > params_.warn_upper_bound_) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::WARN;
       stat.summary(latest_status_, "Current value is in upper warning range.");
-    }
-    else if(current_value_ < params_.warn_lower_bound_)
-    {
+    } else if (current_value_ < params_.warn_lower_bound_) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::WARN;
       stat.summary(latest_status_, "Current value is in lower warning range.");
-    }
-    else
-    {
+    } else {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::OK;
       stat.summary(latest_status_, "Current value is in nominal range.");
     }
@@ -610,10 +574,9 @@ public:
 struct CountStatusParam
 {
   CountStatusParam(int warn_threshold, int error_threshold)
-    : warn_threshold_(warn_threshold), error_threshold_(error_threshold)
+  : warn_threshold_(warn_threshold), error_threshold_(error_threshold)
   {
-    if(warn_threshold_ > error_threshold_)
-    {
+    if (warn_threshold_ > error_threshold_) {
       ROS_WARN("Error threshold must be grater than or equal to warn threshold.");
       error_threshold_ = warn_threshold_;
     }
@@ -627,13 +590,13 @@ class CountStatus : public DiagnosticTask
 {
 private:
   const CountStatusParam params_;
-  boost::mutex           lock_;
-  int                    latest_status_;
-  int                    count_;
+  boost::mutex lock_;
+  int latest_status_;
+  int count_;
 
 public:
-  CountStatus(const CountStatusParam &params, std::string name = "Count Status")
-    : DiagnosticTask(name), params_(params), latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
+  CountStatus(const CountStatusParam & params, std::string name = "Count Status")
+  : DiagnosticTask(name), params_(params), latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
   {
     clear();
   }
@@ -659,21 +622,16 @@ public:
     count_++;
   }
 
-  virtual void run(diagnostic_updater::DiagnosticStatusWrapper &stat)
+  virtual void run(diagnostic_updater::DiagnosticStatusWrapper & stat)
   {
     boost::mutex::scoped_lock lock(lock_);
-    if(count_ >= params_.error_threshold_)
-    {
+    if (count_ >= params_.error_threshold_) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::ERROR;
       stat.summary(latest_status_, "Count exceeds error limit.");
-    }
-    else if(count_ >= params_.warn_threshold_)
-    {
+    } else if (count_ >= params_.warn_threshold_) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::WARN;
       stat.summary(latest_status_, "Count exceeds warn limit.");
-    }
-    else
-    {
+    } else {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::OK;
       stat.summary(latest_status_, "Count is in nominal range.");
     }
@@ -685,7 +643,8 @@ public:
 
 struct BoolStatusParam
 {
-  BoolStatusParam(bool publish_error = true, bool invert = false) : publish_error_(publish_error), invert_(invert)
+  BoolStatusParam(bool publish_error = true, bool invert = false)
+  : publish_error_(publish_error), invert_(invert)
   {
   }
 
@@ -699,33 +658,35 @@ struct BoolStatusParam
 class BoolStatus : public DiagnosticTask
 {
 private:
-  const BoolStatusParam                        params_;
+  const BoolStatusParam params_;
   std::vector<diagnostic_updater::CustomField> custom_fields_;
-  int                                          latest_status_;
-  bool                                         is_success_;
-  int                                          success_count_;
-  int                                          fail_count_;
-  boost::mutex                                 lock_;
+  int latest_status_;
+  bool is_success_;
+  int success_count_;
+  int fail_count_;
+  boost::mutex lock_;
 
 public:
   /**
    * \brief Constructs a Bool Checker
    */
-  BoolStatus(const BoolStatusParam &params, std::string name = "Bool Status")
-    : DiagnosticTask(name)
-    , params_(params)
-    , is_success_(false)
-    , latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
+  BoolStatus(const BoolStatusParam & params, std::string name = "Bool Status")
+  : DiagnosticTask(name),
+    params_(params),
+    is_success_(false),
+    latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
   {
     clear();
   }
 
-  BoolStatus(const BoolStatusParam &params, const std::vector<diagnostic_updater::CustomField> &custom_fields,
-             std::string name = "Bool Status")
-    : DiagnosticTask(name)
-    , params_(params)
-    , is_success_(false)
-    , latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
+  BoolStatus(
+    const BoolStatusParam & params,
+    const std::vector<diagnostic_updater::CustomField> & custom_fields,
+    std::string name = "Bool Status")
+  : DiagnosticTask(name),
+    params_(params),
+    is_success_(false),
+    latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR)
   {
     clear();
     custom_fields_ = custom_fields;
@@ -735,7 +696,7 @@ public:
   {
     boost::mutex::scoped_lock lock(lock_);
     success_count_ = 0;
-    fail_count_    = 0;
+    fail_count_ = 0;
     custom_fields_.clear();
   }
 
@@ -743,13 +704,10 @@ public:
   {
     boost::mutex::scoped_lock lock(lock_);
     is_success_ = params_.invert_ ? !is_success : is_success;
-    if(is_success_)
-    {
+    if (is_success_) {
       success_count_++;
       fail_count_ = 0;
-    }
-    else
-    {
+    } else {
       success_count_ = 0;
       fail_count_++;
     }
@@ -761,24 +719,18 @@ public:
     return latest_status_;
   }
 
-  virtual void run(diagnostic_updater::DiagnosticStatusWrapper &stat)
+  virtual void run(diagnostic_updater::DiagnosticStatusWrapper & stat)
   {
     boost::mutex::scoped_lock lock(lock_);
-    if(is_success_)
-    {
+    if (is_success_) {
       latest_status_ = diagnostic_msgs::DiagnosticStatus::OK;
       stat.summary(latest_status_, "Latest process was successfully completed.");
       stat.add("Successfull update count:", success_count_);
-    }
-    else
-    {
-      if(params_.publish_error_)
-      {
+    } else {
+      if (params_.publish_error_) {
         latest_status_ = diagnostic_msgs::DiagnosticStatus::ERROR;
         stat.summary(latest_status_, "Latest process failed.");
-      }
-      else
-      {
+      } else {
         latest_status_ = diagnostic_msgs::DiagnosticStatus::WARN;
         stat.summary(latest_status_, "Latest process failed.");
       }

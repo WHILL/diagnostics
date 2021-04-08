@@ -8,16 +8,12 @@ namespace diagnostic_generic_diagnostics
 class TopicMonitorNodelet : public nodelet::Nodelet
 {
 public:
-  TopicMonitorNodelet()
-  {
-  }
-  ~TopicMonitorNodelet()
-  {
-  }
+  TopicMonitorNodelet() {}
+  ~TopicMonitorNodelet() {}
 
 private:
   std::shared_ptr<TopicMonitor> monitor_;
-  virtual void                  onInit()
+  virtual void onInit()
   {
     ros::NodeHandle nh(getNodeHandle());
     ros::NodeHandle pnh(getPrivateNodeHandle());

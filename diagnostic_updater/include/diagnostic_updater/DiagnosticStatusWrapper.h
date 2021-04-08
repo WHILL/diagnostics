@@ -1,13 +1,13 @@
 /*********************************************************************
 * Software License Agreement (BSD License)
-* 
+*
 *  Copyright (c) 2008, Willow Garage, Inc.
 *  All rights reserved.
-* 
+*
 *  Redistribution and use in source and binary forms, with or without
 *  modification, are permitted provided that the following conditions
 *  are met:
-* 
+*
 *   * Redistributions of source code must retain the above copyright
 *     notice, this list of conditions and the following disclaimer.
 *   * Redistributions in binary form must reproduce the above
@@ -17,7 +17,7 @@
 *   * Neither the name of the Willow Garage nor the names of its
 *     contributors may be used to endorse or promote products derived
 *     from this software without specific prior written permission.
-* 
+*
 *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -61,7 +61,7 @@ namespace diagnostic_updater
    * for filling the diagnostic_msgs::DiagnosticStatus message. It is a subclass of
    * diagnostic_msgs::DiagnosticStatus, so it can be passed directly to
    * diagnostic publish calls.
-   * 
+   *
    */
   class DiagnosticStatusWrapper : public diagnostic_msgs::DiagnosticStatus
   {
@@ -80,7 +80,7 @@ namespace diagnostic_updater
       }
 
       /**
-       * \brief Merges a level and message with the existing ones. 
+       * \brief Merges a level and message with the existing ones.
        *
        * It is sometimes useful to merge two DiagnosticStatus messages. In that case,
        * the key value pairs can be unioned, but the level and summary message
@@ -119,20 +119,20 @@ namespace diagnostic_updater
        *
        * \param src DiagnosticStatus from which to merge the summary.
        */
-      
+
       void mergeSummary(const diagnostic_msgs::DiagnosticStatus &src)
       {
         mergeSummary(src.level, src.message);
       }
-      
+
       /**
        * \brief Formatted version of mergeSummary.
        *
        * This method is identical to mergeSummary, except that the message is
        * an sprintf-style format string.
-       * 
+       *
        * \param lvl Numerical level to of the merged-in summary.
-       * \param format Format string for the descriptive status message for the 
+       * \param format Format string for the descriptive status message for the
        * merged-in summary.
        * \param ... Values to be formatted by the format string.
        */
@@ -171,7 +171,7 @@ namespace diagnostic_updater
         summary(lvl, value);
         va_end(va);
       }
-                       
+
       /**
        * \brief clears the summary, setting the level to zero and the
        * message to "".
@@ -180,7 +180,7 @@ namespace diagnostic_updater
       {
         summary(0, "");
       }
-      
+
       /**
        * \brief copies the summary from a DiagnosticStatus message
        *

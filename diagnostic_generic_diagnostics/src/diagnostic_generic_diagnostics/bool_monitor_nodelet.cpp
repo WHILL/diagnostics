@@ -8,16 +8,12 @@ namespace diagnostic_generic_diagnostics
 class BoolMonitorNodelet : public nodelet::Nodelet
 {
 public:
-  BoolMonitorNodelet()
-  {
-  }
-  ~BoolMonitorNodelet()
-  {
-  }
+  BoolMonitorNodelet() {}
+  ~BoolMonitorNodelet() {}
 
 private:
   std::shared_ptr<BoolMonitor> monitor_;
-  virtual void                 onInit()
+  virtual void onInit()
   {
     ros::NodeHandle nh(getNodeHandle());
     ros::NodeHandle pnh(getPrivateNodeHandle());
