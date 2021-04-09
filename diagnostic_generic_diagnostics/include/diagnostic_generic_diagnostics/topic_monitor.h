@@ -4,8 +4,8 @@
 
 #include <unordered_map>
 
-#include "diagnostic_updater/publisher.h"
-#include "diagnostic_updater/update_functions.h"
+#include "diagnostic_updater_ext/publisher.h"
+#include "diagnostic_updater_ext/update_functions.h"
 
 namespace diagnostic_generic_diagnostics
 {
@@ -26,15 +26,15 @@ struct TopicStatusParam
   std::string topic;
   std::string hardware_id;
   std::string custom_msg;  // Provision. Currentlly not used.
-  std::vector<diagnostic_updater::CustomField> custom_fields;
+  std::vector<diagnostic_updater_ext::CustomField> custom_fields;
   bool headerless;
   struct
   {
     double max;
     double min;
   } freq;
-  diagnostic_updater::FrequencyStatusParam fparam;
-  diagnostic_updater::TimeStampStatusParam tparam;
+  diagnostic_updater_ext::FrequencyStatusParam fparam;
+  diagnostic_updater_ext::TimeStampStatusParam tparam;
 };
 
 bool parseTopicStatus(XmlRpc::XmlRpcValue & values, TopicStatusParam & param)
@@ -55,7 +55,7 @@ bool parseTopicStatus(XmlRpc::XmlRpcValue & values, TopicStatusParam & param)
       auto fields = values["custom_fields"];
       ROS_DEBUG("parsing field, size of %u...", fields.size());
       for (int i = 0; i < fields.size(); ++i) {
-        diagnostic_updater::CustomField field;
+        diagnostic_updater_ext::CustomField field;
         field.key = static_cast<std::string>(fields[i]["key"]);
         field.value = static_cast<std::string>(fields[i]["value"]);
         field.level = static_cast<int>(fields[i]["level"]);
@@ -83,7 +83,7 @@ bool parseTopicStatus(XmlRpc::XmlRpcValue & values, TopicStatusParam & param)
   return false;
 }
 
-using UpdaterPtr = std::shared_ptr<diagnostic_updater::Updater>;
+using UpdaterPtr = std::shared_ptr<diagnostic_updater_ext::Updater>;
 using TopicStatusParamPtr = std::shared_ptr<TopicStatusParam>;
 class TopicMonitor
 {
@@ -97,14 +97,14 @@ private:
 
   void headerlessTopicCallback(
     const ros::MessageEvent<topic_tools::ShapeShifter> & msg,
-    std::shared_ptr<diagnostic_updater::HeaderlessTopicDiagnostic> task)
+    std::shared_ptr<diagnostic_updater_ext::HeaderlessTopicDiagnostic> task)
   {
     task->tick();
   }
 
   void topicCallback(
     const ros::MessageEvent<topic_tools::ShapeShifter> & msg,
-    std::shared_ptr<diagnostic_updater::TopicDiagnostic> task)
+    std::shared_ptr<diagnostic_updater_ext::TopicDiagnostic> task)
   {
     task->tick(ros::Time::now());
   }
@@ -134,7 +134,7 @@ public:
         params_.push_back(param);
 
         if (updaters_.find(param->hardware_id) == updaters_.end()) {
-          auto u = std::make_shared<diagnostic_updater::Updater>();
+          auto u = std::make_shared<diagnostic_updater_ext::Updater>();
           u->setHardwareID(param->hardware_id);
           updaters_[param->hardware_id] = u;
           hardware_ids_.push_back(param->hardware_id);
@@ -147,7 +147,7 @@ public:
 
         ros::Subscriber sub;
         if (param->headerless) {
-          auto watcher = std::make_shared<diagnostic_updater::HeaderlessTopicDiagnostic>(
+          auto watcher = std::make_shared<diagnostic_updater_ext::HeaderlessTopicDiagnostic>(
             param->topic, *updater, param->fparam, param->custom_fields);
 
           sub = nh_.subscribe<topic_tools::ShapeShifter>(
@@ -156,7 +156,7 @@ public:
               &diagnostic_generic_diagnostics::TopicMonitor::headerlessTopicCallback, this, _1,
               watcher));
         } else {
-          auto watcher = std::make_shared<diagnostic_updater::TopicDiagnostic>(
+          auto watcher = std::make_shared<diagnostic_updater_ext::TopicDiagnostic>(
             param->topic, *updater, param->fparam, param->tparam, param->custom_fields);
 
           sub = nh_.subscribe<topic_tools::ShapeShifter>(

@@ -5,9 +5,9 @@ project(diagnostic_generic_diagnostics)
 add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
-find_package(catkin REQUIRED COMPONENTS 
-  roscpp 
-  diagnostic_updater
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  diagnostic_updater_ext
   nodelet
   topic_tools
   std_msgs
@@ -29,7 +29,11 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES
-  CATKIN_DEPENDS roscpp nodelet topic_tools std_msgs
+  CATKIN_DEPENDS
+    roscpp
+    nodelet
+    topic_tools
+    std_msgs
   DEPENDS
 )
 
@@ -46,23 +50,23 @@ include_directories(
 
 ## node
 add_executable(topic_monitor
-  src/${PROJECT_NAME}/topic_monitor_node.cpp)
+  src/topic_monitor_node.cpp)
 add_dependencies(topic_monitor ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(topic_monitor ${catkin_LIBRARIES})
 
 add_executable(bool_monitor
-  src/${PROJECT_NAME}/bool_monitor_node.cpp)
+  src/bool_monitor_node.cpp)
 add_dependencies(bool_monitor ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(bool_monitor ${catkin_LIBRARIES})
 
 ## nodelet
 add_library(topic_monitor_nodelet
-  src/${PROJECT_NAME}/topic_monitor_nodelet.cpp)
+  src/topic_monitor_nodelet.cpp)
 add_dependencies(topic_monitor_nodelet ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(topic_monitor_nodelet ${catkin_LIBRARIES})
 
 add_library(bool_monitor_nodelet
-  src/${PROJECT_NAME}/bool_monitor_nodelet.cpp)
+  src/bool_monitor_nodelet.cpp)
 add_dependencies(bool_monitor_nodelet ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(bool_monitor_nodelet ${catkin_LIBRARIES})
 
@@ -112,7 +116,7 @@ if (CATKIN_ENABLE_TESTING)
 
   add_rostest_gtest(bool_monitor_nodetest test/launch/bool_monitor_nodetest.test test/bool_monitor_nodetest.cpp)
   target_link_libraries(bool_monitor_nodetest ${catkin_LIBRARIES})
-  
+
   add_rostest_gtest(bool_monitor_nodelettest test/launch/bool_monitor_nodelettest.test test/bool_monitor_nodetest.cpp)
   target_link_libraries(bool_monitor_nodelettest ${catkin_LIBRARIES})
 
