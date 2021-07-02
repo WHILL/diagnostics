@@ -18,6 +18,23 @@ catkin_package(
   INCLUDE_DIRS include
 )
 
+add_library(${PROJECT_NAME} INTERFACE)
+
+target_include_directories(${PROJECT_NAME}
+  INTERFACE
+    include
+    ${catkin_INCLUDE_DIRS}
+)
+
+target_link_libraries(${PROJECT_NAME}
+  INTERFACE
+    ${catkin_LIBRARIES}
+)
+
+if(CATKIN_ENABLE_TESTING)
+  add_subdirectory(test)
+endif()
+
 install(
   DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
