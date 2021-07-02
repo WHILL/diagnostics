@@ -1,13 +1,13 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
- *
+ * 
  *  Copyright (c) 2008, Willow Garage, Inc.
  *  All rights reserved.
- *
+ * 
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
  *  are met:
- *
+ * 
  *   * Redistributions of source code must retain the above copyright
  *     notice, this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above
@@ -17,7 +17,7 @@
  *   * Neither the name of the Willow Garage nor the names of its
  *     contributors may be used to endorse or promote products derived
  *     from this software without specific prior written permission.
- *
+ * 
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -97,9 +97,9 @@ namespace diagnostic_updater
   /**
    * \brief a DiagnosticTask based on a boost::function.
    *
-   * The GenericFunctionDiagnosticTask calls the function when it updates. The function
-   * updates the DiagnosticStatusWrapper and collects data.
-   *
+   * The GenericFunctionDiagnosticTask calls the function when it updates. The function 
+   * updates the DiagnosticStatusWrapper and collects data. 
+   * 
    * This is useful for gathering information about a device or driver, like temperature,
    * calibration, etc.
    */
@@ -115,7 +115,7 @@ namespace diagnostic_updater
        *
        * \param fn Function to be called when DiagnosticTask::run is called.
        */
-      GenericFunctionDiagnosticTask(const std::string &name, boost::function<void(T&)> fn) :
+      GenericFunctionDiagnosticTask(const std::string &name, boost::function<void(T&)> fn) : 
         DiagnosticTask(name), fn_(fn)
       {}
 
@@ -140,7 +140,7 @@ namespace diagnostic_updater
    * DiagnosticStatusWrapped. The output of the combination has the max of
    * the status levels, and a concatenation of the non-zero-level messages.
    *
-   * For instance, this could be used to combine the calibration and offset data from an
+   * For instance, this could be used to combine the calibration and offset data from an 
    * IMU driver.
    */
   class CompositeDiagnosticTask : public DiagnosticTask
@@ -168,7 +168,7 @@ namespace diagnostic_updater
           // Put the summary that was passed in.
           stat.summary(original_summary);
           // Let the next task add entries and put its summary.
-          (*i)->run(stat);
+          (*i)->run(stat); 
           // Merge the new summary into the combined summary.
           combined_summary.mergeSummary(stat);
         }
@@ -240,13 +240,13 @@ namespace diagnostic_updater
         return tasks_;
       }
 
-    public:
+    public:    
       /**
        * \brief Add a DiagnosticTask embodied by a name and function to the
        * DiagnosticTaskVector
        *
        * \param name Name to autofill in the DiagnosticStatusWrapper for this task.
-       *
+       * 
        * \param f Function to call to fill out the DiagnosticStatusWrapper.
        * This function need not remain valid after the last time the tasks are
        * called, and in particular it need not be valid at the time the
@@ -280,7 +280,7 @@ namespace diagnostic_updater
        * \param name Name to autofill in the DiagnosticStatusWrapper for this task.
        *
        * \param c Class instance the method is being called on.
-       *
+       * 
        * \param f Method to call to fill out the DiagnosticStatusWrapper.
        * This method need not remain valid after the last time the tasks are
        * called, and in particular it need not be valid at the time the
@@ -304,10 +304,10 @@ namespace diagnostic_updater
          *
          * \return Returns true if a task matched and was removed.
          */
-
+         
          bool removeByName(const std::string name)
          {
-           boost::mutex::scoped_lock lock(lock_);
+           boost::mutex::scoped_lock lock(lock_); 
            for (std::vector<DiagnosticTaskInternal>::iterator iter = tasks_.begin();
                iter != tasks_.end(); iter++)
            {
@@ -339,7 +339,7 @@ namespace diagnostic_updater
       void addInternal(DiagnosticTaskInternal &task)
       {
         boost::mutex::scoped_lock lock(lock_);
-        tasks_.push_back(task);
+        tasks_.push_back(task); 
         addedTaskCallback(task);
       }
   };
@@ -405,7 +405,7 @@ namespace diagnostic_updater
         if (node_handle_.ok())
         {
           bool warn_nohwid = hwid_.empty();
-
+          
           std::vector<diagnostic_msgs::DiagnosticStatus> status_vec;
 
           boost::mutex::scoped_lock lock(lock_); // Make sure no adds happen while we are processing here.
@@ -423,7 +423,7 @@ namespace diagnostic_updater
             iter->run(status);
 
             status_vec.push_back(status);
-
+                                         
             if (status.level)
               warn_nohwid = false;
 
@@ -453,13 +453,13 @@ namespace diagnostic_updater
       // Destructor has trouble because the node is already shut down.
       /*~Updater()
         {
-      // Create a new node handle and publisher because the existing one is
+      // Create a new node handle and publisher because the existing one is 
       // probably shut down at this stage.
 
-      ros::NodeHandle newnh;
-      node_handle_ = newnh;
+      ros::NodeHandle newnh; 
+      node_handle_ = newnh; 
       publisher_ = node_handle_.advertise<diagnostic_msgs::DiagnosticArray>("/diagnostics", 1);
-      broadcast(2, "Node shut down");
+      broadcast(2, "Node shut down"); 
       }*/
 
       /**
@@ -535,10 +535,10 @@ namespace diagnostic_updater
        */
       void publish(std::vector<diagnostic_msgs::DiagnosticStatus> &status_vec)
       {
-        for  (std::vector<diagnostic_msgs::DiagnosticStatus>::iterator
+        for  (std::vector<diagnostic_msgs::DiagnosticStatus>::iterator 
             iter = status_vec.begin(); iter != status_vec.end(); iter++)
         {
-          iter->name =
+          iter->name = 
             node_name_.substr(1) + std::string(": ") + iter->name;
         }
         diagnostic_msgs::DiagnosticArray msg;

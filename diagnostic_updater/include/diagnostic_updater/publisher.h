@@ -38,95 +38,14 @@
 
 #include <ros/publisher.h>
 #include <ros/subscription.h>
-
-#include "diagnostic_updater/update_functions.h"
+#include <diagnostic_updater/update_functions.h>
 
 namespace diagnostic_updater
 {
-class CountDiagnostic : public CompositeDiagnosticTask
-{
-public:
-  CountDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::CountStatusParam & count)
-  : CompositeDiagnosticTask(name + " count status"), count_(count)
-  {
-    addTask(&count_);
-    diag.add(*this);
-  }
-
-  virtual ~CountDiagnostic() {}
-
-  virtual void tick() { count_.tick(); }
-
-  virtual void clear() { count_.clear(); }
-
-  virtual int get_status() { return count_.get_status(); }
-
-private:
-  diagnostic_updater::CountStatus count_;
-};
-
-class BoundDiagnostic : public CompositeDiagnosticTask
-{
-public:
-  BoundDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::BoundStatusParam & bound)
-  : CompositeDiagnosticTask(name + " bound status"), bound_(bound)
-  {
-    addTask(&bound_);
-    diag.add(*this);
-  }
-
-  virtual ~BoundDiagnostic() {}
-
-  virtual void set(int value) { bound_.set(value); }
-
-  virtual void clear() { bound_.clear(); }
-
-  virtual int get_status() { return bound_.get_status(); }
-
-private:
-  diagnostic_updater::BoundStatus bound_;
-};
-
-class BoolDiagnostic : public CompositeDiagnosticTask
-{
-public:
-  BoolDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::BoolStatusParam & bool_diag,
-    const std::vector<diagnostic_updater::CustomField> & fields)
-  : CompositeDiagnosticTask(name + " bool_diag status"), bool_diag_(bool_diag, fields)
-  {
-    addTask(&bool_diag_);
-    diag.add(*this);
-  }
-
-  BoolDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::BoolStatusParam & bool_diag)
-  : CompositeDiagnosticTask(name + " bool_diag status"), bool_diag_(bool_diag)
-  {
-    addTask(&bool_diag_);
-    diag.add(*this);
-  }
-
-  virtual ~BoolDiagnostic() {}
-
-  virtual void set(bool result) { bool_diag_.set(result); }
-
-  virtual void clear() { bool_diag_.clear(); }
-
-  virtual int get_status() { return bool_diag_.get_status(); }
-
-private:
-  diagnostic_updater::BoolStatus bool_diag_;
-};
+     
 /**
  * \brief A class to facilitate making diagnostics for a topic using a
- * FrequencyStatus.
+ * FrequencyStatus. 
  *
  * The word "headerless" in the class name refers to the fact that it is
  * mainly designed for use with messages that do not have a header, and
@@ -136,51 +55,49 @@ private:
 class HeaderlessTopicDiagnostic : public CompositeDiagnosticTask
 {
 public:
-  /**
-   * \brief Constructs a HeaderlessTopicDiagnostic.
-   *
-   * \param name The name of the topic that is being diagnosed.
-   *
-   * \param diag The diagnostic_updater that the CompositeDiagnosticTask
-   * should add itself to.
-   *
-   * \param freq The parameters for the FrequencyStatus class that will be
-   * computing statistics.
-   */
-  HeaderlessTopicDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::FrequencyStatusParam & freq,
-    const std::vector<diagnostic_updater::CustomField> & fields)
-  : CompositeDiagnosticTask(name + " topic status"), freq_(freq, fields)
+/**
+ * \brief Constructs a HeaderlessTopicDiagnostic. 
+ *
+ * \param name The name of the topic that is being diagnosed.
+ *
+ * \param diag The diagnostic_updater that the CompositeDiagnosticTask
+ * should add itself to.
+ *
+ * \param freq The parameters for the FrequencyStatus class that will be
+ * computing statistics.
+ */
+	
+	HeaderlessTopicDiagnostic(
+      std::string name,
+      diagnostic_updater::Updater &diag,
+      const diagnostic_updater::FrequencyStatusParam &freq) :
+    CompositeDiagnosticTask(name + " topic status"), 
+    freq_(freq)
   {
     addTask(&freq_);
     diag.add(*this);
   }
 
-  HeaderlessTopicDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::FrequencyStatusParam & freq)
-  : CompositeDiagnosticTask(name + " topic status"), freq_(freq)
+  virtual ~HeaderlessTopicDiagnostic()
+  {}
+  
+  /**
+	 * \brief Signals that a publication has occurred.
+	 */
+
+  virtual void tick()
   {
-    addTask(&freq_);
-    diag.add(*this);
+    freq_.tick();
   }
-
-  virtual ~HeaderlessTopicDiagnostic() {}
-
+  
   /**
-   * \brief Signals that a publication has occurred.
-   */
+	 * \brief Clears the frequency statistics.
+	 */
 
-  virtual void tick() { freq_.tick(); }
-
-  /**
-   * \brief Clears the frequency statistics.
-   */
-
-  virtual void clear_window() { freq_.clear(); }
-
-  int get_status() { return freq_.get_status(); }
+  virtual void clear_window()
+  {
+    freq_.clear();
+  }
 
 private:
   diagnostic_updater::FrequencyStatus freq_;
@@ -188,78 +105,60 @@ private:
 
 /**
  * \brief A class to facilitate making diagnostics for a topic using a
- * FrequencyStatus and TimeStampStatus.
+ * FrequencyStatus and TimeStampStatus. 
  */
 
 class TopicDiagnostic : public HeaderlessTopicDiagnostic
 {
 public:
-  /**
-   * \brief Constructs a TopicDiagnostic.
-   *
-   * \param name The name of the topic that is being diagnosed.
-   *
-   * \param diag The diagnostic_updater that the CompositeDiagnosticTask
-   * should add itself to.
-   *
-   * \param freq The parameters for the FrequencyStatus class that will be
-   * computing statistics.
-   *
-   * \param stamp The parameters for the TimeStampStatus class that will be
-   * computing statistics.
-   */
+/**
+ * \brief Constructs a TopicDiagnostic. 
+ *
+ * \param name The name of the topic that is being diagnosed.
+ *
+ * \param diag The diagnostic_updater that the CompositeDiagnosticTask
+ * should add itself to.
+ *
+ * \param freq The parameters for the FrequencyStatus class that will be
+ * computing statistics.
+ *
+ * \param stamp The parameters for the TimeStampStatus class that will be
+ * computing statistics.
+ */
+	
   TopicDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::FrequencyStatusParam & freq,
-    const diagnostic_updater::TimeStampStatusParam & stamp,
-    const std::vector<diagnostic_updater::CustomField> & fields)
-  : HeaderlessTopicDiagnostic(name, diag, freq, fields), stamp_(stamp)
+      std::string name,
+      diagnostic_updater::Updater &diag,
+      const diagnostic_updater::FrequencyStatusParam &freq,
+      const diagnostic_updater::TimeStampStatusParam &stamp) : 
+    HeaderlessTopicDiagnostic(name, diag, freq), 
+    stamp_(stamp)
   {
     addTask(&stamp_);
   }
-
-  TopicDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::FrequencyStatusParam & freq,
-    const diagnostic_updater::TimeStampStatusParam & stamp)
-  : HeaderlessTopicDiagnostic(name, diag, freq), stamp_(stamp)
-  {
-    addTask(&stamp_);
-  }
-
-  virtual ~TopicDiagnostic() {}
+  
+  virtual ~TopicDiagnostic()
+  {}
+  
+  /**
+	 * This method should never be called on a TopicDiagnostic as a timestamp
+	 * is needed to collect the timestamp diagnostics. It is defined here to
+	 * prevent the inherited tick method from being used accidentally.
+	 */
+	virtual void tick() { ROS_FATAL("tick(void) has been called on a TopicDiagnostic. This is never correct. Use tick(ros::Time &) instead."); }
 
   /**
-   * This method should never be called on a TopicDiagnostic as a timestamp
-   * is needed to collect the timestamp diagnostics. It is defined here to
-   * prevent the inherited tick method from being used accidentally.
-   */
-  virtual void tick()
-  {
-    ROS_FATAL(
-      "tick(void) has been called on a TopicDiagnostic. This is never correct. Use tick(ros::Time "
-      "&) instead.");
-  }
-
-  /**
-   * \brief Collects statistics and publishes the message.
-   *
-   * \param stamp Timestamp to use for interval computation by the
-   * TimeStampStatus class.
-   */
-  virtual void tick(const ros::Time & stamp)
+	 * \brief Collects statistics and publishes the message.
+	 *
+	 * \param stamp Timestamp to use for interval computation by the
+	 * TimeStampStatus class.
+	 */
+  virtual void tick(const ros::Time &stamp)
   {
     stamp_.tick(stamp);
     HeaderlessTopicDiagnostic::tick();
   }
-
-  int get_status()
-  {
-    int status_freq = HeaderlessTopicDiagnostic::get_status();
-    int status_stamp = stamp_.get_status();
-    return (status_freq > status_stamp ? status_freq : status_stamp);
-  }
-
+  
 private:
   TimeStampStatus stamp_;
 };
@@ -271,73 +170,74 @@ private:
  * the TopicDiagnostic to be combined for added convenience.
  */
 
-template <class T>
+template<class T>
 class DiagnosedPublisher : public TopicDiagnostic
 {
 public:
-  /**
-   * \brief Constructs a DiagnosedPublisher.
-   *
-   * \param pub The publisher on which statistics are being collected.
-   *
-   * \param diag The diagnostic_updater that the CompositeDiagnosticTask
-   * should add itself to.
-   *
-   * \param freq The parameters for the FrequencyStatus class that will be
-   * computing statistics.
-   *
-   * \param stamp The parameters for the TimeStampStatus class that will be
-   * computing statistics.
-   */
+/**
+ * \brief Constructs a DiagnosedPublisher. 
+ *
+ * \param pub The publisher on which statistics are being collected.
+ *
+ * \param diag The diagnostic_updater that the CompositeDiagnosticTask
+ * should add itself to.
+ *
+ * \param freq The parameters for the FrequencyStatus class that will be
+ * computing statistics.
+ *
+ * \param stamp The parameters for the TimeStampStatus class that will be
+ * computing statistics.
+ */
+	
+  DiagnosedPublisher(const ros::Publisher &pub,
+      diagnostic_updater::Updater &diag, 
+      const diagnostic_updater::FrequencyStatusParam &freq, 
+      const diagnostic_updater::TimeStampStatusParam &stamp) : 
+    TopicDiagnostic(pub.getTopic(), diag, freq, stamp),
+    publisher_(pub)
+  {}
 
-  DiagnosedPublisher(
-    const ros::Publisher & pub, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::FrequencyStatusParam & freq,
-    const diagnostic_updater::TimeStampStatusParam & stamp)
-  : TopicDiagnostic(pub.getTopic(), diag, freq, stamp), publisher_(pub)
+  virtual ~DiagnosedPublisher()
+  {}
+  
+  /**
+	 * \brief Collects statistics and publishes the message.
+	 *
+	 * The timestamp to be used by the TimeStampStatus class will be
+	 * extracted from message.header.stamp.
+	 */
+	virtual void publish(const boost::shared_ptr<T>& message) {
+		tick(message->header.stamp); publisher_.publish(message); }
+ 
+  /**
+	 * \brief Collects statistics and publishes the message.
+	 *
+	 * The timestamp to be used by the TimeStampStatus class will be
+	 * extracted from message.header.stamp.
+	 */
+	virtual void publish(const T& message) { tick(message.header.stamp);
+		publisher_.publish(message); }
+
+  /**
+	 * \brief Returns the publisher.
+	 */
+  ros::Publisher getPublisher() const
   {
+    return publisher_;
   }
 
-  virtual ~DiagnosedPublisher() {}
-
   /**
-   * \brief Collects statistics and publishes the message.
-   *
-   * The timestamp to be used by the TimeStampStatus class will be
-   * extracted from message.header.stamp.
-   */
-  virtual void publish(const boost::shared_ptr<T> & message)
+	 * \brief Changes the publisher.
+	 */
+  void setPublisher(ros::Publisher pub)
   {
-    tick(message->header.stamp);
-    publisher_.publish(message);
+    publisher_ = pub;
   }
-
-  /**
-   * \brief Collects statistics and publishes the message.
-   *
-   * The timestamp to be used by the TimeStampStatus class will be
-   * extracted from message.header.stamp.
-   */
-  virtual void publish(const T & message)
-  {
-    tick(message.header.stamp);
-    publisher_.publish(message);
-  }
-
-  /**
-   * \brief Returns the publisher.
-   */
-  ros::Publisher getPublisher() const { return publisher_; }
-
-  /**
-   * \brief Changes the publisher.
-   */
-  void setPublisher(ros::Publisher pub) { publisher_ = pub; }
 
 private:
   ros::Publisher publisher_;
 };
 
-};  // namespace diagnostic_updater
+};
 
 #endif
