@@ -32,10 +32,9 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-/// Author: Blaise Gassend
+#pragma once
 
-#ifndef __DIAGNOSTIC_STATUS__UPDATE_FUNCTIONS_H__
-#define __DIAGNOSTIC_STATUS__UPDATE_FUNCTIONS_H__
+#include <diagnostic_updater/update_functions.h>
 
 #include <cmath>
 
@@ -70,55 +69,7 @@ static void addCustomFields(
   return;
 }
 
-/**
- * \brief A structure that holds the constructor parameters for the
- * FrequencyStatus class.
- */
-struct FrequencyStatusParam
-{
-  /**
-   * \brief Creates a filled-out FrequencyStatusParam.
-   */
-
-  FrequencyStatusParam(
-    double * min_freq, double * max_freq, double tolerance = 0.1, int window_size = 5)
-  : min_freq_(min_freq), max_freq_(max_freq), tolerance_(tolerance), window_size_(window_size)
-  {
-  }
-
-  /**
-   * \brief Minimum acceptable frequency.
-   *
-   * A pointer is used so that the value can be updated.
-   */
-
-  double * min_freq_;
-
-  /**
-   * \brief Maximum acceptable frequency.
-   *
-   * A pointer is used so that the value can be updated.
-   */
-
-  double * max_freq_;
-
-  /**
-   * \brief Tolerance with which bounds must be satisfied.
-   *
-   * Acceptable values are from *min_freq_ * (1 - torelance_) to *max_freq_ *
-   * (1 + tolerance_).
-   *
-   * Common use cases are to set tolerance_ to zero, or to assign the same
-   * value to *max_freq_ and min_freq_.
-   */
-
-  double tolerance_;
-
-  /**
-   * \brief Number of events to consider in the statistics.
-   */
-  int window_size_;
-};
+using diagnostic_updater::FrequencyStatusParam;
 
 /**
  * \brief A diagnostic task that monitors the frequency of an event.
@@ -272,41 +223,8 @@ public:
   }
 };
 
-/**
- * \brief A structure that holds the constructor parameters for the
- * TimeStampStatus class.
- */
-
-struct TimeStampStatusParam
-{
-  /**
-   * \brief Creates a filled-out TimeStampStatusParam.
-   */
-
-  TimeStampStatusParam(const double min_acceptable = -1, const double max_acceptable = 5)
-  : max_acceptable_(max_acceptable), min_acceptable_(min_acceptable)
-  {
-  }
-
-  /**
-   * \brief Maximum acceptable difference between two timestamps.
-   */
-
-  double max_acceptable_;
-
-  /**
-   * \brief Minimum acceptable difference between two timestamps.
-   */
-
-  double min_acceptable_;
-};
-
-/**
- * \brief Default TimeStampStatusParam. This is like calling the
- * constructor with no arguments.
- */
-
-static TimeStampStatusParam DefaultTimeStampStatusParam = TimeStampStatusParam();
+using diagnostic_updater::DefaultTimeStampStatusParam;
+using diagnostic_updater::TimeStampStatusParam;
 
 /**
  * \brief Diagnostic task to monitor the interval between events.
@@ -733,5 +651,3 @@ public:
   }
 };
 };  // namespace diagnostic_updater_ext
-
-#endif

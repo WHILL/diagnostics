@@ -32,9 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-// Author: Blaise Gassend
-#ifndef __DIAGNOSTIC_UPDATER__DRIVER_H__
-#define __DIAGNOSTIC_UPDATER__DRIVER_H__
+#pragma once
 
 #include <ros/publisher.h>
 #include <ros/subscription.h>
@@ -325,5 +323,3 @@ private:
 };
 
 };  // namespace diagnostic_updater_ext
-
-#endif
