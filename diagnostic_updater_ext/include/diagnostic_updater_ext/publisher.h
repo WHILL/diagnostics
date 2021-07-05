@@ -41,28 +41,6 @@
 
 namespace diagnostic_updater_ext
 {
-class CountDiagnostic : public CompositeDiagnosticTask
-{
-public:
-  CountDiagnostic(std::string name, Updater & diag, const CountStatusParam & count)
-  : CompositeDiagnosticTask(name + " count status"), count_(count)
-  {
-    addTask(&count_);
-    diag.add(*this);
-  }
-
-  virtual ~CountDiagnostic() {}
-
-  virtual void tick() { count_.tick(); }
-
-  virtual void clear() { count_.clear(); }
-
-  virtual int get_status() { return count_.get_status(); }
-
-private:
-  CountStatus count_;
-};
-
 class BoundDiagnostic : public CompositeDiagnosticTask
 {
 public:
