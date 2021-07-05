@@ -41,36 +41,6 @@
 
 namespace diagnostic_updater_ext
 {
-class BoolDiagnostic : public CompositeDiagnosticTask
-{
-public:
-  BoolDiagnostic(
-    std::string name, Updater & diag, const BoolStatusParam & bool_diag,
-    const std::vector<CustomField> & fields)
-  : CompositeDiagnosticTask(name + " bool_diag status"), bool_diag_(bool_diag, fields)
-  {
-    addTask(&bool_diag_);
-    diag.add(*this);
-  }
-
-  BoolDiagnostic(std::string name, Updater & diag, const BoolStatusParam & bool_diag)
-  : CompositeDiagnosticTask(name + " bool_diag status"), bool_diag_(bool_diag)
-  {
-    addTask(&bool_diag_);
-    diag.add(*this);
-  }
-
-  virtual ~BoolDiagnostic() {}
-
-  virtual void set(bool result) { bool_diag_.set(result); }
-
-  virtual void clear() { bool_diag_.clear(); }
-
-  virtual int get_status() { return bool_diag_.get_status(); }
-
-private:
-  BoolStatus bool_diag_;
-};
 /**
  * \brief A class to facilitate making diagnostics for a topic using a
  * FrequencyStatus.
