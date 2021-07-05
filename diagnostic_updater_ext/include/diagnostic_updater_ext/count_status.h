@@ -25,12 +25,12 @@ class CountStatus : public diagnostic_updater::DiagnosticTask
 {
 private:
   const CountStatusParam params_;
-  std::mutex mutex_;
+  mutable std::mutex mutex_;
   int latest_status_;
   int count_;
 
 public:
-  CountStatus(const CountStatusParam & params, const std::string & name = "Count Status")
+  CountStatus(const CountStatusParam & params, std::string name = "Count Status")
   : DiagnosticTask(name),
     params_(params),
     latest_status_(diagnostic_msgs::DiagnosticStatus::ERROR),
@@ -44,7 +44,7 @@ public:
     count_ = 0;
   }
 
-  int get_status()
+  int get_status() const
   {
     std::lock_guard<std::mutex> lock(mutex_);
     return latest_status_;
@@ -59,7 +59,7 @@ public:
     count_++;
   }
 
-  virtual void run(diagnostic_updater::DiagnosticStatusWrapper & stat)
+  virtual void run(diagnostic_updater::DiagnosticStatusWrapper & stat) override
   {
     std::lock_guard<std::mutex> lock(mutex_);
     if (count_ >= params_.error_threshold_) {
@@ -91,11 +91,11 @@ public:
 
   virtual ~CountDiagnostic() {}
 
-  virtual void tick() { count_.tick(); }
+  void tick() { count_.tick(); }
 
-  virtual void clear() { count_.clear(); }
+  void clear() { count_.clear(); }
 
-  virtual int get_status() { return count_.get_status(); }
+  int get_status() { return count_.get_status(); }
 
 private:
   CountStatus count_;
