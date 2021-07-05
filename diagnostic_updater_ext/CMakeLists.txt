@@ -31,10 +31,6 @@ target_link_libraries(${PROJECT_NAME}
     ${catkin_LIBRARIES}
 )
 
-if(CATKIN_ENABLE_TESTING)
-  add_subdirectory(test)
-endif()
-
 install(
   DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}

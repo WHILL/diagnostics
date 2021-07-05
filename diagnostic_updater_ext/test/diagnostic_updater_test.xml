@@ -1,3 +1,0 @@
-<launch>
-  <test pkg="diagnostic_updater_ext" type="diagnostic_updater_ext_test" test-name="diagnostic_updater_ext_test"/>
-</launch>
