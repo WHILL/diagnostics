@@ -41,28 +41,6 @@
 
 namespace diagnostic_updater_ext
 {
-class BoundDiagnostic : public CompositeDiagnosticTask
-{
-public:
-  BoundDiagnostic(std::string name, Updater & diag, const BoundStatusParam & bound)
-  : CompositeDiagnosticTask(name + " bound status"), bound_(bound)
-  {
-    addTask(&bound_);
-    diag.add(*this);
-  }
-
-  virtual ~BoundDiagnostic() {}
-
-  virtual void set(int value) { bound_.set(value); }
-
-  virtual void clear() { bound_.clear(); }
-
-  virtual int get_status() { return bound_.get_status(); }
-
-private:
-  BoundStatus bound_;
-};
-
 class BoolDiagnostic : public CompositeDiagnosticTask
 {
 public:
