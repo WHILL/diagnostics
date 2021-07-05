@@ -52,13 +52,17 @@ class TopicMonitor
 {
 private:
   std::vector<ros::Subscriber> subs_;
+  std::vector<ros::Timer> timers_;
 
   void callback(
     const ros::MessageEvent<topic_tools::ShapeShifter> & msg,
-    std::shared_ptr<diagnostic_updater::Updater> updater,
     std::shared_ptr<diagnostic_updater_ext::HeaderlessTopicDiagnostic> task)
   {
     task->tick();
+  }
+
+  void timerCallback(const ros::TimerEvent &, std::shared_ptr<diagnostic_updater::Updater> updater)
+  {
     updater->update();
   }
 
@@ -81,12 +85,13 @@ public:
         auto watcher = std::make_shared<diagnostic_updater_ext::HeaderlessTopicDiagnostic>(
           param.topic, *updater, param.fparam);
         auto sub = nh.subscribe<topic_tools::ShapeShifter>(
-          param.topic, 50,
-          boost::bind(
-            &diagnostic_generic_diagnostics::TopicMonitor::callback, this, _1, updater, watcher));
+          param.topic, 50, boost::bind(&TopicMonitor::callback, this, _1, watcher));
+        auto timer = nh.createTimer(
+          ros::Duration(0.1), boost::bind(&TopicMonitor::timerCallback, this, _1, updater));
 
         ROS_DEBUG("Setup sub for %s", param.topic.c_str());
         subs_.push_back(sub);
+        timers_.push_back(timer);
       }
     }
   }
