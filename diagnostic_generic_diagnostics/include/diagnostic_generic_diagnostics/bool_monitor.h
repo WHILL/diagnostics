@@ -44,9 +44,7 @@ bool parseTopicStatus(XmlRpc::XmlRpcValue & values, BoolStatusParam & param)
 class BoolMonitor
 {
 private:
-  ros::NodeHandle nh_, pnh_;
   std::vector<ros::Subscriber> subs_;
-  std::vector<ros::Timer> timers_;
 
   void callback(
     const std_msgs::BoolConstPtr & msg, std::shared_ptr<diagnostic_updater::Updater> updater,
@@ -57,29 +55,29 @@ private:
   }
 
 public:
-  BoolMonitor(ros::NodeHandle nh, ros::NodeHandle pnh) : nh_(nh), pnh_(pnh)
+  BoolMonitor(ros::NodeHandle nh, ros::NodeHandle priv_nh)
   {
     ROS_DEBUG("Starting BoolMonitor...");
 
     XmlRpc::XmlRpcValue topics;
-    pnh_.getParam("topics", topics);
+    priv_nh.getParam("topics", topics);
     ROS_ASSERT(topics.getType() == XmlRpc::XmlRpcValue::TypeArray);
     ROS_ASSERT(topics.size() > 0);
     for (int i = 0; i < topics.size(); ++i) {
       ROS_DEBUG("Reading %dth topic...", i);
-      auto param = std::make_shared<BoolStatusParam>();
-      if (parseTopicStatus(topics[i], *param)) {
+      BoolStatusParam param{};
+      if (parseTopicStatus(topics[i], param)) {
         auto updater = std::make_shared<diagnostic_updater::Updater>();
-        updater->setHardwareID(param->hardware_id);
+        updater->setHardwareID(param.hardware_id);
 
         auto watcher = std::make_shared<diagnostic_updater_ext::BoolDiagnostic>(
-          param->topic, *updater, param->bparam);
-        auto sub = nh_.subscribe<std_msgs::Bool>(
-          param->topic, 1,
+          param.topic, *updater, param.bparam);
+        auto sub = nh.subscribe<std_msgs::Bool>(
+          param.topic, 1,
           boost::bind(
             &diagnostic_generic_diagnostics::BoolMonitor::callback, this, _1, updater, watcher));
 
-        ROS_DEBUG("Setup sub for %s", param->topic.c_str());
+        ROS_DEBUG("Setup sub for %s", param.topic.c_str());
         subs_.push_back(sub);
       }
     }
