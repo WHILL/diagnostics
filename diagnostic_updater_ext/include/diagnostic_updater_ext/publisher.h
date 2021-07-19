@@ -39,16 +39,14 @@
 #include <ros/publisher.h>
 #include <ros/subscription.h>
 
-#include "diagnostic_updater/update_functions.h"
+#include "diagnostic_updater_ext/update_functions.h"
 
-namespace diagnostic_updater
+namespace diagnostic_updater_ext
 {
 class CountDiagnostic : public CompositeDiagnosticTask
 {
 public:
-  CountDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::CountStatusParam & count)
+  CountDiagnostic(std::string name, Updater & diag, const CountStatusParam & count)
   : CompositeDiagnosticTask(name + " count status"), count_(count)
   {
     addTask(&count_);
@@ -64,15 +62,13 @@ public:
   virtual int get_status() { return count_.get_status(); }
 
 private:
-  diagnostic_updater::CountStatus count_;
+  CountStatus count_;
 };
 
 class BoundDiagnostic : public CompositeDiagnosticTask
 {
 public:
-  BoundDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::BoundStatusParam & bound)
+  BoundDiagnostic(std::string name, Updater & diag, const BoundStatusParam & bound)
   : CompositeDiagnosticTask(name + " bound status"), bound_(bound)
   {
     addTask(&bound_);
@@ -88,25 +84,22 @@ public:
   virtual int get_status() { return bound_.get_status(); }
 
 private:
-  diagnostic_updater::BoundStatus bound_;
+  BoundStatus bound_;
 };
 
 class BoolDiagnostic : public CompositeDiagnosticTask
 {
 public:
   BoolDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::BoolStatusParam & bool_diag,
-    const std::vector<diagnostic_updater::CustomField> & fields)
+    std::string name, Updater & diag, const BoolStatusParam & bool_diag,
+    const std::vector<CustomField> & fields)
   : CompositeDiagnosticTask(name + " bool_diag status"), bool_diag_(bool_diag, fields)
   {
     addTask(&bool_diag_);
     diag.add(*this);
   }
 
-  BoolDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::BoolStatusParam & bool_diag)
+  BoolDiagnostic(std::string name, Updater & diag, const BoolStatusParam & bool_diag)
   : CompositeDiagnosticTask(name + " bool_diag status"), bool_diag_(bool_diag)
   {
     addTask(&bool_diag_);
@@ -122,7 +115,7 @@ public:
   virtual int get_status() { return bool_diag_.get_status(); }
 
 private:
-  diagnostic_updater::BoolStatus bool_diag_;
+  BoolStatus bool_diag_;
 };
 /**
  * \brief A class to facilitate making diagnostics for a topic using a
@@ -148,18 +141,15 @@ public:
    * computing statistics.
    */
   HeaderlessTopicDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::FrequencyStatusParam & freq,
-    const std::vector<diagnostic_updater::CustomField> & fields)
+    std::string name, Updater & diag, const FrequencyStatusParam & freq,
+    const std::vector<CustomField> & fields)
   : CompositeDiagnosticTask(name + " topic status"), freq_(freq, fields)
   {
     addTask(&freq_);
     diag.add(*this);
   }
 
-  HeaderlessTopicDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::FrequencyStatusParam & freq)
+  HeaderlessTopicDiagnostic(std::string name, Updater & diag, const FrequencyStatusParam & freq)
   : CompositeDiagnosticTask(name + " topic status"), freq_(freq)
   {
     addTask(&freq_);
@@ -183,7 +173,7 @@ public:
   int get_status() { return freq_.get_status(); }
 
 private:
-  diagnostic_updater::FrequencyStatus freq_;
+  FrequencyStatus freq_;
 };
 
 /**
@@ -209,19 +199,16 @@ public:
    * computing statistics.
    */
   TopicDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::FrequencyStatusParam & freq,
-    const diagnostic_updater::TimeStampStatusParam & stamp,
-    const std::vector<diagnostic_updater::CustomField> & fields)
+    std::string name, Updater & diag, const FrequencyStatusParam & freq,
+    const TimeStampStatusParam & stamp, const std::vector<CustomField> & fields)
   : HeaderlessTopicDiagnostic(name, diag, freq, fields), stamp_(stamp)
   {
     addTask(&stamp_);
   }
 
   TopicDiagnostic(
-    std::string name, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::FrequencyStatusParam & freq,
-    const diagnostic_updater::TimeStampStatusParam & stamp)
+    std::string name, Updater & diag, const FrequencyStatusParam & freq,
+    const TimeStampStatusParam & stamp)
   : HeaderlessTopicDiagnostic(name, diag, freq), stamp_(stamp)
   {
     addTask(&stamp_);
@@ -291,9 +278,8 @@ public:
    */
 
   DiagnosedPublisher(
-    const ros::Publisher & pub, diagnostic_updater::Updater & diag,
-    const diagnostic_updater::FrequencyStatusParam & freq,
-    const diagnostic_updater::TimeStampStatusParam & stamp)
+    const ros::Publisher & pub, Updater & diag, const FrequencyStatusParam & freq,
+    const TimeStampStatusParam & stamp)
   : TopicDiagnostic(pub.getTopic(), diag, freq, stamp), publisher_(pub)
   {
   }
@@ -338,6 +324,6 @@ private:
   ros::Publisher publisher_;
 };
 
-};  // namespace diagnostic_updater
+};  // namespace diagnostic_updater_ext
 
 #endif
